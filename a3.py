@@ -10,8 +10,8 @@ import model
 import view
 from game_regular import RegularGame
 
-__author__ = "<Your name here>"
-__email__ = "<Your student email here>"
+__author__ = "Raghav Mishra"
+__email__ = "<r.mishra@uqconnect.edu.au>"
 
 __version__ = "1.0.0"
 
@@ -135,7 +135,8 @@ class BaseLoloApp:
         # But so that the game can work prior to this method being implemented,
         # we'll just print some information.
         print("Scored {} points. Score is now {}.".format(points,
-                                                          self._game.get_score()))
+                                                          self._game.get_score(
+                                                          )))
         print("Don't forget to override the score method!")
 
 

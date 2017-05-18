@@ -143,20 +143,20 @@ class BaseLoloApp:
 class LoloApp(BaseLoloApp):
     """GUI class for LoloApp. Inherits from BaseLoloApp.
     """
-    def __init__(self, arg):
-        """Constructor
-
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
-            game (model.AbstractGame): The game to play. Defaults to a
-                                       game_regular.RegularGame.
-            grid_view (view.GridView): The view to use for the game. Optional.
-
-        Raises:
-            ValueError: If grid_view is supplied, but game is not.
-        """
-        pass
-
+    # def __init__(self, arg):
+    #     """Constructor
+    #
+    #     Parameters:
+    #         master (tk.Tk|tk.Frame): The parent widget.
+    #         game (model.AbstractGame): The game to play. Defaults to a
+    #                                    game_regular.RegularGame.
+    #         grid_view (view.GridView): The view to use for the game. Optional.
+    #
+    #     Raises:
+    #         ValueError: If grid_view is supplied, but game is not.
+    #     """
+    #     pass
+    pass
 # Define your classes here
 
 

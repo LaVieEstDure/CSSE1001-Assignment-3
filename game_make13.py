@@ -4,7 +4,7 @@ import tile_generators
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 import model
 import game_regular
@@ -54,8 +54,10 @@ class Make13Game(game_regular.RegularGame):
     Game is won when a 13 is made.
     """
 
+    GAME_NAME = "Make 13"
+
     def __init__(self, size=(6, 6), initial_tiles=4, goal_value=13, min_group=2,
-                 animation=True):
+                 animation=True, autofill=True):
         """Constructor
 
         Parameters:
@@ -65,29 +67,33 @@ class Make13Game(game_regular.RegularGame):
             min_group (int): The minimum number of tiles required for a
                              connected group to be joinable.
             animation (bool): If True, animation will be enabled.
+            autofill (bool): Automatically fills the grid iff True.
 
         """
         self.goal_value = goal_value
 
         self.initial_tiles = initial_tiles
 
+        super().__init__(size=size, min_group=min_group, animation=animation,
+                         autofill=False)
+
         self._selector = WeightedSelector({1: 1})
         self.reset()
 
-        generator = tile_generators.WeightedGenerator(self._selector, self._construct_tile)
-
-        super().__init__(size=size, min_group=min_group, animation=animation)
+        generator = tile_generators.WeightedGenerator(self._selector,
+                                                      self._construct_tile)
 
         rows, columns = size
         self.grid = model.LoloGrid(generator, rows=rows, columns=columns,
                                    animation=animation)
-        self.grid.fill()
+        if autofill:
+            self.grid.fill()
         self.generator = generator
 
         self._score = max(tile.get_value() for _, tile in self.grid.items())
 
     def reset(self):
-        # super().reset()
+        super().reset()
         weights = {i: self.get_tile_weight(i) for i in
                    range(1, self.initial_tiles + 1)}
         self._selector.update(weights, clear=True)
@@ -108,7 +114,7 @@ class Make13Game(game_regular.RegularGame):
             # Unlock new tile
             self._selector[score] = self.get_tile_weight(score)
 
-            self.increase_score(score)
+            self.set_score(score)
 
         if current.get_value() == self.goal_value:
             self.emit('game_over')

@@ -1,3 +1,22 @@
+"""Contains GridView for Lolo tile game."""
+
+"""
+                                                 ,  ,
+                                               / \/ \
+                                              (/ //_ \_
+     .-._                                      \||  .  \
+      \  '-._                            _,:__.-"/---\_ \
+ ______/___  '.    .--------------------'~-'--.)__( , )\ \
+`'--.___  _\  /    |             Here        ,'    \)|\ `\|
+     /_.-' _\ \ _:,_          Be Dragons           " ||   (
+   .'__ _.' \'-/,`-~`                                |/
+       '. ___.> /=,|  Abandon hope all ye who enter  |
+        / .-'/_ )  '---------------------------------'
+        )'  ( /(/
+             \\ "
+              '=='
+"""
+
 import tkinter as tk
 
 from modules.ee import EventEmitter
@@ -7,7 +26,7 @@ from colours import VIBRANT_COLOURS
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 def dict_defaults(dictionary, *others):
@@ -48,8 +67,8 @@ class GridView(EventEmitter, tk.Canvas):
         13: VIBRANT_COLOURS['lime']
     }
 
-    def __init__(self, master, size, cell_size=(90, 90),
-                 border=(10, 10), colours=None, **kwargs):
+    def __init__(self, master, size, cell_size=(70, 70),
+                 border=(8, 8), colours=None, **kwargs):
         """
         Constructs a GridView based off a tkinter parent and LoloGrid.
 

@@ -1,12 +1,50 @@
 """Tile generator classes for Lolo puzzle game."""
 
+"""
+                        /-------------\
+                       /               \
+                      /                 \
+                     /                   \
+                     |   XXXX     XXXX   |
+                     |   XXXX     XXXX   |
+                     |   XXX       XXX   |
+                     \         X         /
+                      --\     XXX     /--
+                       | |    XXX    | |
+                       | |           | |
+                       | I I I I I I I |
+                       |  I I I I I I  |
+                        \              /
+                          --         --
+                            \-------/
+                    XXX                    XXX
+                  XXXXX                  XXXXX
+                  XXXXXXXXX         XXXXXXXXXX
+                          XXXXX   XXXXX
+                            XXXXXXX
+                          XXXXX   XXXXX
+                  XXXXXXXXX         XXXXXXXXXX
+                  XXXXX                  XXXXX
+                    XXX                    XXX
+                          **************
+                          *  BEWARE!!  *
+                          **************
+                      All ye who enter here:
+                 Most of the code in this module
+                     is twisted beyond belief!
+                        Tread carefully.
+                 If you think you understand it,
+                            You Don't,
+                          So Look Again.
+"""
+
 import game_regular
 from model import AbstractTileGenerator
 
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 class LoadedGenerator(AbstractTileGenerator):

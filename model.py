@@ -1,4 +1,6 @@
 """Abstract modelling classes for Lolo puzzle game."""
+
+# To understand recursion, see the bottom of this file
 import itertools
 
 from modules import matrix as matrix
@@ -7,8 +9,7 @@ from modules.ee import EventEmitter
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
-
+__version__ = "1.0.2"
 
 class AbstractTile:
     """Basic form of a Lolo tile."""
@@ -108,6 +109,7 @@ class LoloGrid(matrix.Matrix):
                 self[position] = tile
 
     # TODO: these should be on game :/
+    # Move on and call me an idiot later.
     @classmethod
     def deserialize(cls, grid, *args, **kwargs):
         """Creates a new grid from the a given serialized grid.
@@ -315,12 +317,19 @@ class LoloGrid(matrix.Matrix):
         """
 
         row, column = position
+
+        # I am not sure if we need this, but too scared to delete. ;)
+        if row == 0:
+            row = -row
+
         return row - 1, column
 
 
 class AbstractGame(EventEmitter):
     """Abstract base class for a game of Lolo with helpful functionality across
     multiple game modes."""
+
+    GAME_NAME = "Abstract"
 
     def __init__(self, size, generator, min_group, animation=True,
                  autofill=True):
@@ -441,6 +450,14 @@ class AbstractGame(EventEmitter):
         """
         raise NotImplementedError
 
+    def remove(self, *positions):
+        """Removes the tile(s) at the given position(s).
+
+        Yield:
+            None: On each step of the resolution.
+        """
+        raise NotImplementedError
+
     def can_activate(self, position):
         """(bool) Returns true iff the given position can be activated."""
         try:
@@ -463,6 +480,11 @@ class AbstractGame(EventEmitter):
         self.grid.reset()
         self.grid.fill()
 
+    @classmethod
+    def get_name(cls):
+        """(str) Returns the name of the game."""
+        return cls.GAME_NAME
+
     def get_score(self):
         """(int) Returns the score."""
         return self._score
@@ -478,7 +500,9 @@ class AbstractGame(EventEmitter):
         """
         raise NotImplementedError
 
-    def increase_score(self, increment):
-        """Increases the score by increment (int)."""
-        self._score += increment
-        self.emit('score', increment)
+    def set_score(self, score):
+        """Sets the score."""
+        self._score = score
+        self.emit('score', score)
+
+# To understand recursion, see the top of this file

@@ -6,7 +6,7 @@ import game_make13
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 class LuckyTile(game_make13.LevelTile):
@@ -37,8 +37,10 @@ class Lucky7Game(game_make13.Make13Game):
     When lucky 7 tiles are formed, they explode, removing surrounding tiles.
     """
 
+    GAME_NAME = "Lucky 7"
+
     def __init__(self, size=(6, 6), initial_tiles=4, lucky_value=7, min_group=3,
-                 animation=True):
+                 animation=True, autofill=True):
         """Constructor
 
         Parameters:
@@ -48,13 +50,14 @@ class Lucky7Game(game_make13.Make13Game):
             min_group (int): The minimum number of tiles required for a
                              connected group to be joinable.
             animation (bool): If True, animation will be enabled.
+            autofill (bool): Automatically fills the grid iff True.
         """
 
         self.lucky_value = lucky_value
 
         super().__init__(size=size, initial_tiles=initial_tiles,
                          goal_value=lucky_value + 1, min_group=min_group,
-                         animation=animation)
+                         animation=animation, autofill=autofill)
 
     def reset(self):
         # super().reset()
@@ -76,7 +79,7 @@ class Lucky7Game(game_make13.Make13Game):
         else:
             score = (value - 1) * 10
 
-        super().increase_score(score)
+        self.set_score(self.get_score() + score)
 
     def activate(self, position):
         return game_regular.RegularGame.activate(self, position)

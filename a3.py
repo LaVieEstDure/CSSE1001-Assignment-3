@@ -182,7 +182,15 @@ class LoloApp(BaseLoloApp):
 
 
 def main():
-    pass
+    game = game_regular.RegularGame()
+    # game = game_make13.Make13Game()
+    # game = game_lucky7.Lucky7Game()
+    # game = game_unlimited.UnlimitedGame()
+
+    root = tk.Tk()
+    app = a3.LoloApp(root, game)
+    root.mainloop()
+
     # Your GUI instantiation code here
 
 

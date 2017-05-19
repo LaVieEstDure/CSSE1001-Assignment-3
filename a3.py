@@ -1,5 +1,6 @@
 """
-CSSE1001 Assignment 3
+CSSE1001 Assignment 3.
+
 Semester 1, 2017
 """
 
@@ -177,18 +178,31 @@ class BaseLoloApp:
 
 # Define your classes here
 class LoloApp(BaseLoloApp):
-    """GUI class for Lolo"""
+    """GUI class for Lolo."""
+
     pass
 
 
+class HomeScreen:
+    """GUI class for Home screen for Lolo."""
+
+    def __init__(self, master):
+        """Initialise Homescreen Tk Frameself."""
+        pass
+
+
 def main():
-    game = game_regular.RegularGame()
+    game = RegularGame()
     # game = game_make13.Make13Game()
     # game = game_lucky7.Lucky7Game()
     # game = game_unlimited.UnlimitedGame()
 
     root = tk.Tk()
-    app = a3.LoloApp(root, game)
+    status_bar = tk.Frame(root, height=20)
+    game_window = tk.Frame(root)
+    status_bar.pack(side=tk.TOP)
+    game_window.pack(side=tk.TOP, expand=True)
+    LoloApp(game_window, game)
     root.mainloop()
 
     # Your GUI instantiation code here

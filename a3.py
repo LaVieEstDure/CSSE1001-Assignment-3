@@ -5,10 +5,10 @@ Semester 1, 2017
 """
 
 import tkinter as tk
-
-import model
+from tkinter import font
 import view
 from game_regular import RegularGame
+
 # # For alternative game modes
 # from game_make13 import Make13Game
 # from game_lucky7 import Lucky7Game
@@ -82,7 +82,7 @@ class BaseLoloApp:
 
         def runner():
             try:
-                value = next(generator)
+                next(generator)
                 self._master.after(delay, runner)
                 if func is not None:
                     func()
@@ -179,8 +179,53 @@ class BaseLoloApp:
 # Define your classes here
 class LoloApp(BaseLoloApp):
     """GUI class for Lolo."""
+    def __init__(self, master, status, game=None, grid_view=None):
+        """Constructor
 
-    pass
+        Parameters:
+            master (tk.Tk|tk.Frame): The parent widget.
+            game (model.AbstractGame): The game to play. Defaults to a
+                                       game_regular.RegularGame.
+            grid_view (view.GridView): The view to use for the game. Optional.
+
+        Raises:
+            ValueError: If grid_view is supplied, but game is not.
+        """
+        self._master = master
+        self._status = status
+
+        # Game
+        if game is None:
+            game = RegularGame(types=3)
+
+        self._game = game
+
+        # Grid View
+        if grid_view is None:
+            if game is None:
+                raise ValueError("A grid view cannot be given without a game.")
+            grid_view = view.GridView(master, self._game.grid.size())
+
+        self._grid_view = grid_view
+        self._grid_view.pack()
+
+        self._grid_view.draw(self._game.grid, self._game.find_connections())
+
+        # Events
+        self.bind_events()
+
+    def score(self, points):
+        """Handles increase in score."""
+
+        # Normally, this should raise the following error:
+        # raise NotImplementedError("Abstract method")
+        # But so that the game can work prior to this method being implemented,
+        # we'll just print some information.
+        # Sometimes I believe Python ignores all my comments :(
+        print("Scored {} points. Score is now {}.".format(points,
+                                                          self._game.get_score(
+                                                          )))
+        self._status.score_label["text"] = f"Score: {self._game.get_score()}"
 
 
 class HomeScreen:
@@ -188,21 +233,42 @@ class HomeScreen:
 
     def __init__(self, master):
         """Initialise Homescreen Tk Frameself."""
-        pass
+        self._master = master
+
+
+class StatusBar:
+    """GUI class for Status bar for Lolol."""
+
+    def __init__(self, master, game):
+        """Constructor
+
+        Parameters:
+            master (tk.Tk|tk.Frame): Parent widget
+            game (mode.AbstractGame): Game to play
+        """
+        self._master = master
+        self.score = game.get_score()
+
+        helv36 = font.Font(family="Courier", size=15)
+        font.families()
+
+        self.score_label = tk.Label(master, text=f"Score: {self.score}",state=tk.ACTIVE, font=helv36)
+        self.score_label.pack(side="left")
 
 
 def main():
-    game = RegularGame()
+    game_instance = RegularGame()
     # game = game_make13.Make13Game()
     # game = game_lucky7.Lucky7Game()
     # game = game_unlimited.UnlimitedGame()
 
     root = tk.Tk()
-    status_bar = tk.Frame(root, height=20)
-    game_window = tk.Frame(root)
-    status_bar.pack(side=tk.TOP)
-    game_window.pack(side=tk.TOP, expand=True)
-    LoloApp(game_window, game)
+    status_bar_frame = tk.Frame(root, height=20)
+    game_window_frame = tk.Frame(root, borderwidth=10, relief=tk.RAISED)
+    status_bar_frame.pack(side=tk.TOP, fill=tk.BOTH)
+    game_window_frame.pack(side=tk.TOP, expand=True)
+    status = StatusBar(status_bar_frame, game_instance)
+    lolo = LoloApp(game_window_frame, status, game=game_instance)
     root.mainloop()
 
     # Your GUI instantiation code here

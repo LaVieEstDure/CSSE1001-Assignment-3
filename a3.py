@@ -204,7 +204,7 @@ class LoloApp(BaseLoloApp):
         if grid_view is None:
             if game is None:
                 raise ValueError("A grid view cannot be given without a game.")
-            grid_view = view.GridView(master, self._game.grid.size())
+            grid_view = view.GridView(master, self._game.grid.size(), bg="white")
 
         self._grid_view = grid_view
         self._grid_view.pack()
@@ -252,8 +252,17 @@ class StatusBar:
         helv36 = font.Font(family="Courier", size=15)
         font.families()
 
-        self.score_label = tk.Label(master, text=f"Score: {self.score}",state=tk.ACTIVE, font=helv36)
+        self.score_label = tk.Label(master, text=f"Score: {self.score}",
+                                    font=helv36, bg="white")
         self.score_label.pack(side="left")
+        self.gamemode_label = tk.Label(master, text=game.get_name(),
+                                    font=helv36, bg="white")
+        self.gamemode_label.pack(side="right")
+
+class LoloLogo:
+    """docstring for LoloLogo."""
+    def __init__(self):
+        pass
 
 
 def main():
@@ -263,10 +272,16 @@ def main():
     # game = game_unlimited.UnlimitedGame()
 
     root = tk.Tk()
-    status_bar_frame = tk.Frame(root, height=20)
+    root.config(bg="white")
+    root.resizable(width=False, height=False)
+    root.wm_title(f"LOLO - Regular Game")
+
+    status_bar_frame = tk.Frame(root, height=20, bg="white")
     game_window_frame = tk.Frame(root, borderwidth=10, relief=tk.RAISED)
+
     status_bar_frame.pack(side=tk.TOP, fill=tk.BOTH)
     game_window_frame.pack(side=tk.TOP, expand=True)
+
     status = StatusBar(status_bar_frame, game_instance)
     lolo = LoloApp(game_window_frame, status, game=game_instance)
     root.mainloop()

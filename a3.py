@@ -184,6 +184,7 @@ class LoloApp(BaseLoloApp):
 
         Parameters:
             master (tk.Tk|tk.Frame): The parent widget.
+            status (StatusBar): The StatusBar instance the game is linked to
             game (model.AbstractGame): The game to play. Defaults to a
                                        game_regular.RegularGame.
             grid_view (view.GridView): The view to use for the game. Optional.
@@ -204,7 +205,8 @@ class LoloApp(BaseLoloApp):
         if grid_view is None:
             if game is None:
                 raise ValueError("A grid view cannot be given without a game.")
-            grid_view = view.GridView(master, self._game.grid.size(), bg="white")
+            grid_view = view.GridView(master, self._game.grid.size(),
+                                      bg="white")
 
         self._grid_view = grid_view
         self._grid_view.pack()
@@ -225,7 +227,7 @@ class LoloApp(BaseLoloApp):
         print("Scored {} points. Score is now {}.".format(points,
                                                           self._game.get_score(
                                                           )))
-        self._status.score_label["text"] = f"Score: {self._game.get_score()}"
+        self._status.set_score(self._game.get_score())
 
 
 class HomeScreen:
@@ -256,13 +258,26 @@ class StatusBar:
                                     font=helv36, bg="white")
         self.score_label.pack(side="left")
         self.gamemode_label = tk.Label(master, text=game.get_name(),
-                                    font=helv36, bg="white")
+                                       font=helv36, bg="white")
         self.gamemode_label.pack(side="right")
+
+    def set_score(self, score):
+        self.score_label["text"] = f"Score: {score}"
+
 
 class LoloLogo:
     """docstring for LoloLogo."""
-    def __init__(self):
-        pass
+    def __init__(self, master):
+        """Constructor.
+
+        Parameters:
+            master (tk.Tk|tk.Frame): Parent widget
+        """
+        self._master = master
+        canvas = tk.Canvas(master, width=495, height=100, bg="white")
+        canvas.pack()
+        canvas.create_rectangle(50, 25, 150, 75, fill="blue")
+        canvas.create_rectangle(0, 0, 100, 100, fill='red', width=0)
 
 
 def main():
@@ -276,14 +291,17 @@ def main():
     root.resizable(width=False, height=False)
     root.wm_title(f"LOLO - Regular Game")
 
+    lolologo_frame = tk.Frame(root)
     status_bar_frame = tk.Frame(root, height=20, bg="white")
     game_window_frame = tk.Frame(root, borderwidth=10, relief=tk.RAISED)
 
+    lolologo_frame.pack(side=tk.TOP, fill=tk.BOTH)
     status_bar_frame.pack(side=tk.TOP, fill=tk.BOTH)
     game_window_frame.pack(side=tk.TOP, expand=True)
 
     status = StatusBar(status_bar_frame, game_instance)
     lolo = LoloApp(game_window_frame, status, game=game_instance)
+    logo = LoloLogo(lolologo_frame)
     root.mainloop()
 
     # Your GUI instantiation code here

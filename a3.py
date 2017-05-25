@@ -273,11 +273,15 @@ class LoloLogo:
         Parameters:
             master (tk.Tk|tk.Frame): Parent widget
         """
-        self._master = master
-        canvas = tk.Canvas(master, width=495, height=100, bg="white")
-        canvas.pack()
-        canvas.create_rectangle(50, 25, 150, 75, fill="blue")
-        canvas.create_rectangle(0, 0, 100, 100, fill='red', width=0)
+    canvas = tk.Canvas(master, width=495, height=100, bg="white")
+    canvas.pack()
+
+    canvas.create_rectangle(115, 15, 140, 90, fill='red', width=0)
+    canvas.create_rectangle(115, 65, 175, 90, fill='red', width=0)
+    canvas.create_oval(190, 37, 235, 82, width=15, outline="red")
+    canvas.create_rectangle(260, 15, 285, 90, fill='red', width=0)
+    canvas.create_rectangle(260, 65, 320, 90, fill='red', width=0)
+    canvas.create_oval(335, 37, 380, 82, width=15, outline="red")
 
 
 def main():

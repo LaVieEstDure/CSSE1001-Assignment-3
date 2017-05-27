@@ -1,20 +1,21 @@
 """
-CSSE1001 Assignment 3
+CSSE1001 Assignment 3.
+
 Semester 1, 2017
 """
 
 import tkinter as tk
-
-import model
+from tkinter import font
 import view
 from game_regular import RegularGame
+
 # # For alternative game modes
 # from game_make13 import Make13Game
 # from game_lucky7 import Lucky7Game
 # from game_unlimited import UnlimitedGame
 
-__author__ = "<Your name here>"
-__email__ = "<Your student email here>"
+__author__ = "Raghav Mishra"
+__email__ = "r.mishra@uqconnect.edu.au"
 
 __version__ = "1.0.2"
 
@@ -81,7 +82,7 @@ class BaseLoloApp:
 
         def runner():
             try:
-                value = next(generator)
+                next(generator)
                 self._master.after(delay, runner)
                 if func is not None:
                     func()
@@ -110,7 +111,8 @@ class BaseLoloApp:
         if position in self._game.grid:
 
             if not self._game.can_activate(position):
-                hell = IndexError("Cannot activate position {}".format(position))
+                hell = IndexError("Cannot activate position {}".format(position
+                                                                       ))
                 raise hell  # he he
 
             def finish_move():
@@ -169,15 +171,155 @@ class BaseLoloApp:
         # we'll just print some information.
         # Sometimes I believe Python ignores all my comments :(
         print("Scored {} points. Score is now {}.".format(points,
-                                                          self._game.get_score()))
+                                                          self._game.get_score(
+                                                          )))
         print("Don't forget to override the score method!")
 
 
 # Define your classes here
+class LoloApp(BaseLoloApp):
+    """GUI class for Lolo."""
+    def __init__(self, master, status, game=None, grid_view=None):
+        """Constructor
+
+        Parameters:
+            master (tk.Tk|tk.Frame): The parent widget.
+            status (StatusBar): The StatusBar instance the game is linked to
+            game (model.AbstractGame): The game to play. Defaults to a
+                                       game_regular.RegularGame.
+            grid_view (view.GridView): The view to use for the game. Optional.
+
+        Raises:
+            ValueError: If grid_view is supplied, but game is not.
+        """
+        self._master = master
+        self._status = status
+
+        # Game
+        if game is None:
+            game = RegularGame(types=3)
+
+        self._game = game
+
+        # Grid View
+        if grid_view is None:
+            if game is None:
+                raise ValueError("A grid view cannot be given without a game.")
+            grid_view = view.GridView(master, self._game.grid.size(),
+                                      bg="white")
+
+        self._grid_view = grid_view
+        self._grid_view.pack()
+
+        self._grid_view.draw(self._game.grid, self._game.find_connections())
+
+        # Events
+        self.bind_events()
+        self._status.set_gamemode(game.get_name())
+
+    def score(self, points):
+        """Handles increase in score."""
+
+        # Normally, this should raise the following error:
+        # raise NotImplementedError("Abstract method")
+        # But so that the game can work prior to this method being implemented,
+        # we'll just print some information.
+        # Sometimes I believe Python ignores all my comments :(
+        print("Scored {} points. Score is now {}.".format(points,
+                                                          self._game.get_score(
+                                                          )))
+        self._status.set_score(self._game.get_score())
+
+
+class HomeScreen:
+    """GUI class for Home screen for Lolo."""
+
+    def __init__(self, master):
+        """Initialise Homescreen Tk Frameself."""
+        self._master = master
+
+
+class StatusBar(tk.Frame):
+    """GUI class for Status bar for Lolol."""
+
+    def __init__(self, master):
+        """Constructor
+
+        Parameters:
+            master (tk.Tk|tk.Frame): Parent widget
+            game (mode.AbstractGame): Game to play
+        """
+        super().__init__(master, height=20, bg="white")
+        self.score = 0
+
+        helv36 = font.Font(size=15)
+        font.families()
+
+        self.score_label = tk.Label(self, text=f"Score: {self.score}",
+                                    font=helv36, bg="white")
+        self.score_label.pack(side="right")
+        self.gamemode_label = tk.Label(self, text="Game",
+                                       font=helv36, bg="white")
+        self.gamemode_label.pack(side="left")
+
+    def set_score(self, score):
+        self.score_label["text"] = f"Score: {score}"
+
+    def set_gamemode(self, gamemode):
+        self.gamemode_label["text"] = gamemode
+
+
+class MenuBar(tk.Menu):
+    def __init__(self, master):
+        super().__init__(master)
+        filemenu = tk.Menu(self, tearoff=0)
+        filemenu.add_command(label="Lol")
+        self.add_cascade(label="File", menu=filemenu)
+
+
+class LoloLogo(tk.Canvas):
+    """docstring for LoloLogo."""
+    def __init__(self, master):
+        """Constructor.
+
+        Parameters:
+            master (tk.Tk|tk.Frame): Parent widget
+        """
+        super().__init__(width=460, height=100, bg="white")
+        self.pack()
+        self.create_rectangle(115, 15, 140, 90, fill='red', width=0)
+        self.create_rectangle(115, 65, 175, 90, fill='red', width=0)
+        self.create_oval(190, 37, 235, 82, width=15, outline="red")
+        self.create_rectangle(260, 15, 285, 90, fill='red', width=0)
+        self.create_rectangle(260, 65, 320, 90, fill='red', width=0)
+        self.create_oval(335, 37, 380, 82, width=15, outline="red")
 
 
 def main():
-    pass
+    game_instance = RegularGame()
+    # game = game_make13.Make13Game()
+    # game = game_lucky7.Lucky7Game()
+    # game = game_unlimited.UnlimitedGame()
+
+    root = tk.Tk()
+    root.config(bg="white")
+    root.resizable(width=False, height=False)
+    root.wm_title(f"LOLO - " + game_instance.get_name() + " Game")
+
+    status = StatusBar(root)
+    logo = LoloLogo(root)
+
+    menubar = MenuBar(root)
+    root.config(menu=menubar)
+
+    game_window_frame = tk.Frame(root)
+    lolo = LoloApp(game_window_frame, status, game=game_instance)
+
+    logo.pack(side=tk.TOP, fill=tk.BOTH)
+    status.pack(side=tk.TOP, fill=tk.BOTH)
+    game_window_frame.pack(side=tk.BOTTOM, expand=True)
+    root.mainloop()
+
     # Your GUI instantiation code here
 
 

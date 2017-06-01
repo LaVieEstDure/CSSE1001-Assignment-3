@@ -6,6 +6,7 @@ Semester 1, 2017
 
 import tkinter as tk
 from tkinter import font
+import tkMessageBox
 import view
 from game_regular import RegularGame
 
@@ -230,6 +231,20 @@ class LoloApp(BaseLoloApp):
                                                           )))
         self._status.set_score(self._game.get_score())
 
+    def reset(self):
+        self._game.reset()
+        self._grid_view.draw(self._game.grid, self._game.find_connections())
+        self._game.set_score(0)
+        self.score(0)
+
+    def activate(self, position):
+        try:
+            super().activate(position)
+        except IndexError:
+            tk.TkMessageBox.showwarning(
+                "Cant activate"
+            )
+
 
 class HomeScreen:
     """GUI class for Home screen for Lolo."""
@@ -262,18 +277,22 @@ class StatusBar(tk.Frame):
                                        font=helv36, bg="white")
         self.gamemode_label.pack(side="left")
 
+        self.pack()
+
     def set_score(self, score):
         self.score_label["text"] = f"Score: {score}"
+
 
     def set_gamemode(self, gamemode):
         self.gamemode_label["text"] = gamemode
 
 
 class MenuBar(tk.Menu):
-    def __init__(self, master):
+    def __init__(self, master, loloobj):
         super().__init__(master)
         filemenu = tk.Menu(self, tearoff=0)
-        filemenu.add_command(label="Lol")
+        filemenu.add_command(label="New Game", command=loloobj.reset)
+        filemenu.add_command(label="Exit", command=master.destroy)
         self.add_cascade(label="File", menu=filemenu)
 
 
@@ -301,24 +320,30 @@ def main():
     # game = game_lucky7.Lucky7Game()
     # game = game_unlimited.UnlimitedGame()
 
-    root = tk.Tk()
-    root.config(bg="white")
-    root.resizable(width=False, height=False)
-    root.wm_title(f"LOLO - " + game_instance.get_name() + " Game")
 
-    status = StatusBar(root)
-    logo = LoloLogo(root)
+    game_window = tk.Tk()
+    game_window.config(bg="white")
+    game_window.resizable(width=False, height=False)
+    game_window.wm_title(f"LOLO - " + game_instance.get_name() + " Game")
 
-    menubar = MenuBar(root)
-    root.config(menu=menubar)
 
-    game_window_frame = tk.Frame(root)
+
+    status = StatusBar(game_window)
+
+    logo = LoloLogo(game_window)
+
+
+    game_window_frame = tk.Frame(game_window)
     lolo = LoloApp(game_window_frame, status, game=game_instance)
+
+    menubar = MenuBar(game_window, lolo)
+    game_window.config(menu=menubar)
+
 
     logo.pack(side=tk.TOP, fill=tk.BOTH)
     status.pack(side=tk.TOP, fill=tk.BOTH)
     game_window_frame.pack(side=tk.BOTTOM, expand=True)
-    root.mainloop()
+    game_window.mainloop()
 
     # Your GUI instantiation code here
 

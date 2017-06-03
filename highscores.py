@@ -26,34 +26,39 @@ class HighScoreManager:
         if self._auto_save:
             self.load()
 
+    def _load_json(self):
+        """Loads the highscore json file."""
+        try:
+            with open(self._file) as file:
+                try:
+                    data = json.load(file)
+                except json.JSONDecodeError:
+                    # Failed to decode the json file
+                    # Default to empty leaderboard
+                    data = {}
+        except IOError:
+            # Could not locate the json file
+            # Default to empty leaderboard
+            data = {}
+
+        if self._gamemode not in data:
+            data[self._gamemode] = []
+
+        return data
+
     def load(self):
         """Loads the highscore information from the highscores file into the
         manager.
         """
-        try:
-            with open(self._file) as file:
-                try:
-                    data = json.load(file)
-                    self._data = data[self._gamemode]
-                except json.JSONDecodeError:
-                    print("Failed to decode the json file")
-        except IOError:
-            print("Could not locate the file {}".format(self._file))
+        data = self._load_json()
+        self._data = data[self._gamemode]
 
     def save(self):
         """Saves the information added to the highscore manager to the file."""
-        try:
-            with open(self._file) as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    print("Failed to decode the json file")
-                    return
-            with open(self._file, "w") as file:
-                data[self._gamemode] = self._data
-                file.write(json.dumps(data, indent=2))
-        except IOError:
-            print("Could not locate the file {}".format(self._file))
+        data = self._load_json()
+        with open(self._file, "w") as file:
+            data[self._gamemode] = self._data
+            file.write(json.dumps(data, indent=2))
 
     def record(self, score, grid, name=None):
         """Makes a record of a gameplay based on the score, final grid and name.
@@ -87,11 +92,14 @@ class HighScoreManager:
     def __iter__(self):
         """Loop through each record in the highscores file.
 
-        Yields:
+        Yield:
             record (dict<str, int>): The record being yielded
         """
         for record in self.get_sorted_data():
             yield record
+
+    def __len__(self):
+        return len(self.get_data())
 
     def get_data(self):
         """(list<dict<str, *>>) Returns a list of all the records in the file"""

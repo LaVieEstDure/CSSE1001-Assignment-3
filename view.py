@@ -26,7 +26,7 @@ from colours import VIBRANT_COLOURS
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 
 def dict_defaults(dictionary, *others):
@@ -240,7 +240,7 @@ class GridView(EventEmitter, tk.Canvas):
         Parameters:
             position (tuple<int, int>): The position of the tile.
 
-        Returns:
+        Return:
             (str): The best font colour either black or white.
         """
         colour_name = self.itemconfig(self._tiles[position])['fill'][4]

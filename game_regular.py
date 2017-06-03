@@ -8,7 +8,7 @@ from modules.weighted_selector import WeightedSelector
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 
 class RegularTile(model.AbstractTile):
@@ -125,20 +125,26 @@ class RegularGame(model.AbstractGame):
         super().__init__(size, generator, min_group, animation=animation,
                          autofill=autofill)
 
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        return 0
+
     def reset(self):
         """Resets the game."""
         super().reset()
 
         self._lock_max()
 
-    def _construct_tile(self, type, position):
+    def _construct_tile(self, type, position, *args, **kwargs):
         """(RegularTile) Returns a new tile from the generator's selection.
 
         Parameters:
-            type: The type of the tile.
-            position: The position the tile will initially exist in. Unused.
+            type (*): The type of the tile.
+            position (tuple<int, int>): The position the tile will initially exist in. Unused.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
         """
-        return RegularTile(type, max_value=self.max_tile_value)
+        return RegularTile(type, *args, max_value=self.max_tile_value, **kwargs)
 
     def _check_unlock_max(self, current):
         """Unlocks the max tile if the current tile is a max tile.

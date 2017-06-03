@@ -4,7 +4,7 @@ __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
 __date__ = "06/05/2017"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 # Sourced from http://colorpalettes.net/
 VIBRANT_COLOURS = {

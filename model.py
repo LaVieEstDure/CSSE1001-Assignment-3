@@ -9,7 +9,7 @@ from modules.ee import EventEmitter
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 class AbstractTile:
     """Basic form of a Lolo tile."""
@@ -116,14 +116,13 @@ class LoloGrid(matrix.Matrix):
 
         Parameters:
             grid (list<list<tuple<int, int>>>): A serialized grid list to load.
+            generator (AbstractTileGenerator): The tile generator to use.
 
         Return:
             LoloGrid: A grid loaded from the serialized grid list.
         """
 
-        raise NotImplementedError
-
-        #return cls(LoadedGenerator(grid), *args, **kwargs)
+        raise NotImplementedError("ERROR: LoloGrid.deserialize is deprecated. See AbstractGame.deserialize instead.")
 
     def serialize(self):
         """Serializes the grid into a list so it can be saved in a file.
@@ -131,6 +130,7 @@ class LoloGrid(matrix.Matrix):
         Return:
             list<list<tuple<int, int>>>: The serialized grid.
         """
+        print("WARNING: LoloGrid.serialize is deprecated. See AbstractGame.serialize instead.")
         grid_list = []
         for row in self.get_rows():
             row_list = []
@@ -154,8 +154,8 @@ class LoloGrid(matrix.Matrix):
             root (tuple<int, int>): The (row, column) position of the root cell.
             positions (set<tuple<int, int>>): The set of positions to search.
 
-        Returns:
-            set<AbstractTile>: The set of connected tiles, including root.
+        Return:
+            set<tuple<int, int>>: A set of (row, column) positions for each connected tile, including root.
         """
 
         # Default to all cells
@@ -196,8 +196,8 @@ class LoloGrid(matrix.Matrix):
     def find_all_connected(self):
         """Finds and yields all the connections within the grid.
 
-        Yields:
-            set<AbstractTile>: The set of connected tiles, including root.
+        Yield:
+            set<tuple<int, int>>: A set of (row, column) positions for each connected tile, including root.
         """
         positions = set(self)
 
@@ -265,7 +265,7 @@ class LoloGrid(matrix.Matrix):
     def calculate_replacements(self):
         """Calculates the drops that need to occur to replace empty tiles.
 
-        Returns:
+        Return:
             (list<tuple<int, int, int>>): A list of the drops that need to occur
                                           for a tile to be replaced. Specified
                                           by a tuple (empties, column, rows).
@@ -354,11 +354,14 @@ class AbstractGame(EventEmitter):
         self._animation = animation
         self._resolving = False
 
-        # Scoring
-        self._score = 0
-
         if autofill:
             self.grid.fill()
+
+            self._score = self.get_default_score()
+
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        raise NotImplementedError
 
     def is_resolving(self):
         """(bool) Returns True iff the game is resolving a move."""
@@ -368,8 +371,8 @@ class AbstractGame(EventEmitter):
         """Yields all the valid groups within the grid. Groups are connected and
         must have at least 'self.min_group' members.
 
-        Yields:
-            set<AbstractTile>: The set of connected tiles, including root.
+        Yield:
+            set<tuple<int, int>>: A set of (row, column) positions for each connected tile, including root.
         """
 
         for group in self.grid.find_all_connected():
@@ -385,9 +388,9 @@ class AbstractGame(EventEmitter):
         Parameters:
             position (tuple<int, int>): Row, column position of the tile.
 
-        Returns:
+        Return:
             None: If tile is not part of a group.
-            set<AbstractTile>: The set of connected tiles, including root.
+            set<tuple<int, int>>: A set of (row, column) positions for each connected tile, including root.
         """
         group = self.grid.find_connected(position)
 
@@ -399,7 +402,7 @@ class AbstractGame(EventEmitter):
     def find_connections(self):
         """Returns a list of connection information for all grid positions.
 
-        Returns:
+        Return:
             list<tuple<tuple<int, int>, *, tuple<int, int>>>:
                 Each tuple has form (position, cell_type, neighbour_position).
         """
@@ -479,6 +482,7 @@ class AbstractGame(EventEmitter):
         """Resets the game."""
         self.grid.reset()
         self.grid.fill()
+        self.set_score(self.get_default_score())
 
     @classmethod
     def get_name(cls):
@@ -504,5 +508,60 @@ class AbstractGame(EventEmitter):
         """Sets the score."""
         self._score = score
         self.emit('score', score)
+
+    def _construct_tile(self, type, position, *args, **kwargs):
+        """(AbstractTile) Returns a new tile from the generator's selection.
+
+        Parameters:
+            type (*): The type of the tile.
+            position (tuple<int, int>): The position the tile will initially exist in. Unused.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
+        """
+        raise NotImplementedError
+
+    # de/serialize are designed to be backwards compatible with HighScoreManager from <= 1.1.1
+    # Ideally, they would consider not just the grid but the entire game (i.e. all of __init__'s parameters).
+    # However, this would be a breaking change, so only de/serialization of the grid is supported.
+    # This will be changed in 1.2.0 (post-due-date update)
+    def serialize(self):
+        """
+        Serializes this game.
+
+        Return:
+            grid (list<list<tuple<int, int>>>): The serialized grid.
+        """
+        grid_list = []
+        for row in self.grid.get_rows():
+            row_list = []
+            for tile in row:
+                row_list.append((tile.get_type(), tile.get_value()))
+            grid_list.append(row_list)
+        return grid_list
+
+    @classmethod
+    def deserialize(cls, grid, *args, **kwargs):
+        """
+        Deserializes a game grid.
+
+        Parameters:
+            grid (list<list<tuple<int, int>>>): A serialized grid list to load.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
+        """
+
+        # TODO: This line should be included, but causes an error with the current design.
+        #       Error occurs for games that assume tiles are generated (i.e. unlimited)
+        # kwargs['autofill'] = False
+
+        game = cls(*args, **kwargs)
+
+        for row, row_data in enumerate(grid):
+            for column, data in enumerate(row_data):
+                type, *rest = data
+                game.grid[(row, column)] = game._construct_tile(type, (None, None), *rest)
+
+        return game
+
 
 # To understand recursion, see the top of this file

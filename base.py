@@ -13,7 +13,7 @@ from game_regular import RegularGame
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 class BaseLoloApp:
     """Base class for a simple Lolo game."""
@@ -153,14 +153,19 @@ class BaseLoloApp:
         """Handles the game ending."""
         raise NotImplementedError("Abstract method")  # no mercy for stooges
 
-    def score(self, points):
-        """Handles increase in score."""
+    def score(self, score):
+        """Handles change in score.
+        
+        Parameters:
+            score (int): The new score.
+        """
 
         # Normally, this should raise the following error:
         # raise NotImplementedError("Abstract method")
         # But so that the game can work prior to this method being implemented,
         # we'll just print some information.
         # Sometimes I believe Python ignores all my comments :(
-        print("Scored {} points. Score is now {}.".format(points,
-                                                          self._game.get_score()))
+        print("Score is now {}.".format(score))
         print("Don't forget to override the score method!")
+
+        # Note: # score can also be retrieved through self._game.get_score()

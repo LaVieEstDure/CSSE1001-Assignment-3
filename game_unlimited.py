@@ -7,7 +7,7 @@ import game_regular
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 
 class UnlimitedGame(game_regular.RegularGame):
@@ -33,13 +33,30 @@ class UnlimitedGame(game_regular.RegularGame):
         super().__init__(size=size, types=types, min_group=min_group,
                          animation=animation, autofill=autofill)
 
-        self._score = max(tile.get_value() for _, tile in self.grid.items())
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        return max(tile.get_value() for _, tile in self.grid.items())
 
-    def _construct_tile(self, type, position):
-        """(RegularTile) Returns a randomly generated tile."""
-        return game_regular.RegularTile(type, max_value=math.inf)
+    def _construct_tile(self, type, position, *args, **kwargs):
+        """(RegularTile) Returns a new tile from the generator's selection.
+
+        Parameters:
+            type (*): The type of the tile.
+            position (tuple<int, int>): The position the tile will initially exist in. Unused.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
+        """
+        return game_regular.RegularTile(type, *args, max_value=math.inf, **kwargs)
 
     def update_score_on_activate(self, current, connections):
+        """Updates the score based upon the current tile & connected tiles that
+        were joined to it.
+
+        Parameter:
+            current (AbstractTile): The tile recently current to.
+            connected (tuple<AbstractTiles>): The tiles that were joined to
+                                              current.
+        """
         if current.get_value() > self._score:
             # Update score
             score = current.get_value()

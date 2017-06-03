@@ -4,7 +4,7 @@ import tile_generators
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 import model
 import game_regular
@@ -88,24 +88,49 @@ class Make13Game(game_regular.RegularGame):
                                    animation=animation)
         if autofill:
             self.grid.fill()
+            self._score = self.get_default_score()
+
         self.generator = generator
 
-        self._score = max(tile.get_value() for _, tile in self.grid.items())
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        return max(tile.get_value() for _, tile in self.grid.items())
 
     def reset(self):
-        super().reset()
+        """Resets the game."""
         weights = {i: self.get_tile_weight(i) for i in
                    range(1, self.initial_tiles + 1)}
         self._selector.update(weights, clear=True)
+        super().reset()
 
     def get_tile_weight(self, value):
+        """(float) Returns the weighting for a tile of given value."""
         return 2 ** (self.goal_value - value)
 
-    def _construct_tile(self, type, position):
-        """(LevelTile) Returns a randomly generated tile."""
-        return LevelTile(type)
+    def _construct_tile(self, type, position, *args, **kwargs):
+        """(LevelTile) Returns a new tile from the generator's selection.
+
+        Parameters:
+            type (*): The type of the tile.
+            position (tuple<int, int>): The position the tile will initially exist in. Unused.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
+        """
+
+        # TODO: remove when serialize is implemented properly
+        args = args[1:]
+
+        return LevelTile(type, *args, **kwargs)
 
     def update_score_on_activate(self, current, connections):
+        """Updates the score based upon the current tile & connected tiles that
+        were joined to it.
+
+        Parameter:
+            current (AbstractTile): The tile recently current to.
+            connected (tuple<AbstractTiles>): The tiles that were joined to
+                                              current.
+        """
         if current.get_value() > self._score:
             # Update score
             score = current.get_value()

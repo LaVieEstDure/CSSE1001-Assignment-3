@@ -6,7 +6,7 @@ import game_make13
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 
 class LuckyTile(game_make13.LevelTile):
@@ -59,17 +59,37 @@ class Lucky7Game(game_make13.Make13Game):
                          goal_value=lucky_value + 1, min_group=min_group,
                          animation=animation, autofill=autofill)
 
-    def reset(self):
-        # super().reset()
-        weights = {i: self.get_tile_weight(i) for i in
-                   range(1, self.initial_tiles + 1)}
-        self._selector.update(weights, clear=True)
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        return 0
 
-    def _construct_tile(self, type, position):
-        """(LuckyTile) Returns a randomly generated tile."""
-        return LuckyTile(type, lucky=self.lucky_value)
+    def _construct_tile(self, type, position, *args, **kwargs):
+        """(LuckyTile) Returns a new tile from the generator's selection.
+
+        Parameters:
+            type (*): The type of the tile.
+            position (tuple<int, int>): The position the tile will initially exist in. Unused.
+            *args: Extra positional arguments for the tile.
+            **kwargs: Extra keyword arguments for the tile.
+        """
+
+        if 'lucky' not in kwargs:
+            kwargs['lucky'] = self.lucky_value
+
+        # TODO: remove when serialize is implemented properly
+        args = args[1:]
+
+        return LuckyTile(type, *args, **kwargs)
 
     def update_score_on_activate(self, current, connections):
+        """Updates the score based upon the current tile & connected tiles that
+        were joined to it.
+
+        Parameter:
+            current (AbstractTile): The tile recently current to.
+            connected (tuple<AbstractTiles>): The tiles that were joined to
+                                              current.
+        """
         value = current.get_value()
 
         if value == 1:
@@ -82,4 +102,16 @@ class Lucky7Game(game_make13.Make13Game):
         self.set_score(self.get_score() + score)
 
     def activate(self, position):
+        """Attempts to activate the tile at the given position.
+
+        Parameters:
+            position (tuple<int, int>): The position to activate.
+
+        Yield:
+            Yields None for each frame of drops and "DONE" when the dropping
+            has finished.
+        """
         return game_regular.RegularGame.activate(self, position)
+
+    def _check_unlock_max(self, current):
+        """Max tile cannot be unlocked in Lucky 7"""

@@ -44,7 +44,7 @@ from model import AbstractTileGenerator
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.1.2"
 
 
 class LoadedGenerator(AbstractTileGenerator):
@@ -56,6 +56,7 @@ class LoadedGenerator(AbstractTileGenerator):
         Parameters:
             grid (list<list<tuple<int, int>>>): The serialized grid.
         """
+        print("WARNING: LoadedGenerator is deprecated and should no longer be used.")
         self._grid = grid
 
     def generate(self, position):

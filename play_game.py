@@ -11,16 +11,16 @@ import game_unlimited
 __author__ = "Benjamin Martin and Brae Webb"
 __copyright__ = "Copyright 2017, The University of Queensland"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.1.2"
 
 
 def main():
     """Plays a game."""
 
-    # game = game_regular.RegularGame()
+    game = game_regular.RegularGame()
     # game = game_make13.Make13Game()
-    # game = game_lucky7.Lucky7Game(lucky_value=5)
-    game = game_unlimited.UnlimitedGame()
+    # game = game_lucky7.Lucky7Game()
+    # game = game_unlimited.UnlimitedGame()
 
     root = tk.Tk()
     app = a3.LoloApp(root, game)
